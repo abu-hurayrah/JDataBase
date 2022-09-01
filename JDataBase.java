@@ -14,6 +14,21 @@ public class JDataBase {
 	
 	// Helper functions
 	
+	@SuppressWarnings("unchecked")
+	private static <K, V> HashMap<K, V> stringToHashMap(String str) {
+		var map = new HashMap<K, V>();
+		
+		str = str.replace("{", "").replace("}", "");
+		
+		String[] elements = str.split(", ");
+		for (String element : elements) {
+			String[] kV = element.split("=");
+			map.put((K) kV[0], (V) kV[1]);
+		}
+		
+		return map;
+	}
+
 	private static String read(String filePath) {
 	    String out = "";
 	    try {
@@ -55,24 +70,24 @@ public class JDataBase {
 			
 			while(true) {
 				String raw = bf.readLine(); // Read text
-				String[] input = raw.split(", ");
-				
-				// Parse commands
-				
-				if (input[0].equals("NEW")) {
-					database.add(new HashMap<Integer, String>());
-				} else if (input[0].equals("ADD")) {
-					database.get(Integer.parseInt(input[1])).put(database.get(Integer.parseInt(input[1])).size(), input[2]);
-				} else if (input[0].equals("GET")) {
-					pr.println(database.get(Integer.parseInt(input[1])).get(Integer.parseInt(input[2])));
-					pr.flush();
-				} else if (input[0].equals("GETALL")) {
-					pr.println(database.get(Integer.parseInt(input[1])).toString());
-					pr.flush();
-				} else if (input[0].equals("SAVE")) {
-					database.forEach(list -> list.forEach((k, v) -> {create(k + ".txt", true); write(k + ".txt", v);}));
-				} else if (input[0].equals("LOAD")) {
-					database.forEach(list -> list.forEach((k, v) -> v = read(k + ".txt")));
+				String[] input = null;
+				if (raw != null) {
+					input = raw.split(", ");
+					System.out.println(raw); // TODO: Remove; test
+					
+					// Parse commands
+					
+					if (input[0].equals("NEW")) {
+						database.add(new HashMap<Integer, String>());
+					} else if (input[0].equals("ADD")) {
+						database.get(Integer.parseInt(input[1])).put(database.get(Integer.parseInt(input[1])).size(), input[2]);
+					} else if (input[0].equals("GET")) {
+						pr.println(database.get(Integer.parseInt(input[1])).get(Integer.parseInt(input[2])));
+						pr.flush();
+					} else if (input[0].equals("GETALL")) {
+						pr.println(database.get(Integer.parseInt(input[1])).toString());
+						pr.flush();
+					}
 				}
 			}
 		} catch (NumberFormatException e) {
