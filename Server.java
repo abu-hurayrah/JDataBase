@@ -4,10 +4,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Server {
-	
-	public static void main(String args[]) throws UnknownHostException, IOException {
-        ServerSocket serverSocket = null; 	// Server Socket
-        Socket socket = null;				// Client Socket
+
+    public static void main(String args[]) throws UnknownHostException, IOException {
+        ServerSocket serverSocket = null; // Server Socket
+        Socket socket = null; // Client Socket
 
         try {
             serverSocket = new ServerSocket(Setup.PORT); // Hosts on port 4999
