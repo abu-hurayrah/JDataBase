@@ -1,3 +1,5 @@
+package main;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +8,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 
 public class JDataBase extends Thread {
 	
@@ -46,22 +47,6 @@ public class JDataBase extends Thread {
 	    } catch (IOException e) { e.printStackTrace(); }
 	}
 	
-	@SuppressWarnings("unchecked")
-	private static <T> ArrayList<T> stringToArrayList(String str) {
-		var list = new ArrayList<T>();
-		
-		str = str.replace("[", "").replace("]", "");
-		
-		String[] elements = str.split(", ");
-		for (String element : elements) {
-			list.add((T) element);
-		}
-		
-		return list;
-	}
-	
-	private static ArrayList<ArrayList<String>> database = new ArrayList<ArrayList<String>>(); // Database
-	
 	public void run() {
 		try {
 			PrintWriter pr = new PrintWriter(s.getOutputStream()); 				// Writing
@@ -79,29 +64,37 @@ public class JDataBase extends Thread {
 					// Parse commands
 					
 					if (input[0].equals("NEW")) {
-						database.add(new ArrayList<String>());
+						for (int i = 0; true; i++) {
+							if (!new File(i + ".txt").exists()) {
+								create(i + ".txt", true);
+								break;
+							}
+						}
 					} else if (input[0].equals("ADD")) {
 						String temp = "";
 						for (int i = 2; i < input.length; i++) temp += input[i];
-						database.get(Integer.parseInt(input[1])).add(temp);
+						for (int i = 0; true; i++) {
+							if (!new File(input[1] + "-" + i + ".txt").exists()) {
+								create(input[1] + "-" + i + ".txt", true);
+								write(input[1] + "-" + i + ".txt", temp);
+								break;
+							}
+						}
 					} else if (input[0].equals("GET")) {
-						pr.println(database.get(Integer.parseInt(input[1])).get(Integer.parseInt(input[2])));
+						pr.println(read(input[1] + "-" + input[2] + ".txt"));
 						pr.flush();
 					} else if (input[0].equals("GETALL")) {
-						pr.println(database.get(Integer.parseInt(input[1])).toString());
+						String temp = "[";
+						for (int i = 0; true; i++) {
+							if (new File(input[1] + "-" + i + ".txt").exists()) {
+								temp += read(input[1] + "-" + i + ".txt") + ", ";
+							} else {
+								temp += "]";
+								break;
+							}
+						}
+						pr.println(temp);
 						pr.flush();
-					} else if (input[0].equals("SAVE")) { 
-						for (int i = 0; i < database.size(); i++) {
-							create(i + ".txt", false);
-							write(i + ".txt", database.get(i).toString());
-						}
-					} else if (input[0].equals("LOAD")) {
-						int i = 0;
-						while (true) {
-							if (!new File(i + ".txt").exists()) break;
-							database.set(i, stringToArrayList(read(i + ".txt")));
-							i++;
-						}
 					}
 				}
 			}
