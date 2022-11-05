@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.io.File;
 
 public class Setup {
 	
@@ -12,22 +13,10 @@ public class Setup {
 	
 	public static void setup() throws UnknownHostException, IOException {
 		try (var s = new Socket(IP, PORT)) {
-			var pr = new PrintWriter(s.getOutputStream());
-
-			pr.println("NEW"); // Names
-			pr.flush();
-			
-			pr.println("NEW"); // Tokens
-			pr.flush();
-			
-			pr.println("NEW"); // Blogs
-			pr.flush();
-			
-			pr.println("NEW"); // Blog names
-			pr.flush();
-			
-			pr.println("LOAD"); // Load
-			pr.flush();
+			//Creating a folder using mkdir() method  
+			new File("Server").mkdir(); // Creates folder called "Server"
+			// var pr = new PrintWriter(s.getOutputStream());
+			// Setup goes here
 		}
 	}
 	

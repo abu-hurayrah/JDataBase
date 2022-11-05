@@ -13,87 +13,72 @@ public class JDataBase extends Thread {
 	
 	Socket s = null;
 	
-	public JDataBase(Socket clientSocket) {
-        this.s = clientSocket;
-    }
+	public JDataBase(Socket clientSocket) { this.s = clientSocket; }
 	
 	// Helper functions
 
-	private static String read(String filePath) {
-	    String out = "";
-	    try {
-	        var path = Path.of(filePath);
-	        out = Files.readString(path);
-	    } catch (IOException e) { e.printStackTrace(); }
-	    return out;
+	private static String read(String filePath) { // Returns contents of a file
+		try { return Files.readString(Path.of(filePath)); } catch (IOException e) { e.printStackTrace(); }
+		return "";
 	}
 	
-	private static void create(String filePath, boolean err) {
-	    try {
-	        var file = new File(filePath);
-	        if (file.createNewFile()) {} else {
-	            if (err) { System.out.println(filePath + " already exists."); }
-	        }
-	    } catch (IOException e) {
-	        System.out.println(filePath + " could not be created.");
-	        e.printStackTrace();
-	    }
+	private static void create(String filePath, boolean err) { // Creates a file
+	    try { if (new File(filePath).createNewFile()) {} else { if (err) { System.out.println(filePath + " already exists."); }}} catch (IOException e) { e.printStackTrace(); }
 	} 
 	
-	private static void write(String filePath, String data) {
-	    try {
-	        var path = Path.of(filePath);
-	        Files.writeString(path, data);
-	    } catch (IOException e) { e.printStackTrace(); }
+	private static void write(String filePath, String data) { // Writes to file
+	    try { Files.writeString(Path.of(filePath), data); } catch (IOException e) { e.printStackTrace(); }
 	}
 	
 	public void run() {
 		try {
-			PrintWriter pr = new PrintWriter(s.getOutputStream()); 				// Writing
+			PrintWriter pr = new PrintWriter(s.getOutputStream()); // Writing
 
-			InputStreamReader in = new InputStreamReader(s.getInputStream()); 	// Reading
-			BufferedReader bf = new BufferedReader(in);							// Reading
-			
-			while(true) {
+			InputStreamReader in = new InputStreamReader(s.getInputStream()); // Reading
+			BufferedReader bf = new BufferedReader(in); // Reading
+
+			while (true) {
 				String raw = bf.readLine(); // Read text
 				String[] input = null;
 				if (raw != null) {
 					input = raw.split(", ");
-					System.out.println(raw);
-					
+					System.out.println(raw); // Debug
+
 					// Parse commands
-					
+
 					if (input[0].equals("NEW")) {
-						for (int i = 0; true; i++) {
-							if (!new File(i + ".txt").exists()) {
-								create(i + ".txt", true);
+						for (int i = 0; true; i++) { // Until file does not exist
+							if (!new File("Server/" + i + ".txt").exists()) { // File does not exist?
+								create("Server/" + i + ".txt", true); // Create file
 								break;
 							}
 						}
 					} else if (input[0].equals("ADD")) {
 						String temp = "";
-						for (int i = 2; i < input.length; i++) temp += input[i];
-						for (int i = 0; true; i++) {
-							if (!new File(input[1] + "-" + i + ".txt").exists()) {
-								create(input[1] + "-" + i + ".txt", true);
-								write(input[1] + "-" + i + ".txt", temp);
+						for (int i = 2; i < input.length; i++)
+							temp += input[i]; // Adds all elements after command to "temp"
+						for (int i = 0; true; i++) { // Until file does not exist
+							if (!new File("Server/" + input[1] + "-" + i + ".txt").exists()) { // File does not exist? 
+								create("Server/" + input[1] + "-" + i + ".txt", true); // Create file
+								write("Server/" + input[1] + "-" + i + ".txt", temp); // Write data from "temp" to file
 								break;
 							}
 						}
 					} else if (input[0].equals("GET")) {
-						pr.println(read(input[1] + "-" + input[2] + ".txt"));
+						pr.println(read("Server/" + input[1] + "-" + input[2] + ".txt")); // Sends data from file to client
 						pr.flush();
 					} else if (input[0].equals("GETALL")) {
 						String temp = "[";
-						for (int i = 0; true; i++) {
-							if (new File(input[1] + "-" + i + ".txt").exists()) {
-								temp += read(input[1] + "-" + i + ".txt") + ", ";
+						for (int i = 0; true; i++) { // Until file found
+							if (new File("Server/" + input[1] + "-" + i + ".txt").exists()) { // File exists?
+								temp += read("Server/" + input[1] + "-" + i + ".txt") + ", "; // Adds to string representation of ArrayList
 							} else {
 								temp += "]";
 								break;
 							}
 						}
-						pr.println(temp);
+
+						pr.println(temp); // Sends string representation of ArrayList containing table data to client
 						pr.flush();
 					}
 				}
