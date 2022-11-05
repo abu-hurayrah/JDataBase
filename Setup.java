@@ -12,8 +12,7 @@ public class Setup {
 	public static final int PORT = 4999;
 	
 	public static void setup() throws UnknownHostException, IOException {
-		try (var s = new Socket(IP, PORT)) {
-			//Creating a folder using mkdir() method  
+		try (var s = new Socket(IP, PORT)) {  
 			new File("Server").mkdir(); // Creates folder called "Server"
 			// var pr = new PrintWriter(s.getOutputStream());
 			// Setup goes here
