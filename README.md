@@ -3,5 +3,5 @@
 # JDataBase
 
 <div align="center"><h2>
-An easy to use database written in Java<br/>Made by Raiyaxi Ziaoi
+An easy to use database written in Java<br/>Made by Abu Hurayrah
 </h2></div>
